@@ -15,6 +15,11 @@ os.environ['AWS_SECRET_ACCESS_KEY'] = config['AWS']['AWS_SECRET_ACCESS_KEY']
 
 
 def create_spark_session():
+    """
+    Create spark session
+    :param cur: cursor of database
+    :param conn: database connection
+    """
     spark = SparkSession \
         .builder \
         .config("spark.jars.packages", "org.apache.hadoop:hadoop-aws:2.7.0") \
@@ -23,6 +28,12 @@ def create_spark_session():
 
 
 def process_song_data(spark, input_data, output_data):
+    """
+    Process json music files and extract music and artist data
+    :param spark: spark session,
+    :param input_data: path to the folder containing the files,
+    :param input_data: path to the folder where the transformation results will be stored.
+    """
     # get filepath to song data file
     song_data = '{}/song-data/song-data/*/*/*/*.json'.format(input_data)
     
@@ -43,6 +54,12 @@ def process_song_data(spark, input_data, output_data):
 
 
 def process_log_data(spark, input_data, output_data):
+    """
+    Process json music files and extract users, time and songplays data
+    :param spark: spark session,
+    :param input_data: path to the folder containing the files,
+    :param input_data: path to the folder where the transformation results will be stored.
+    """
     # get filepath to log data file
     log_data = '{}/log-data'.format(input_data)
 
@@ -70,7 +87,7 @@ def process_log_data(spark, input_data, output_data):
     df = df.withColumn('hour', hour(df.start_time)).withColumn('day', dayofmonth(df.start_time)).withColumn('week', weekofyear(df.start_time)).withColumn('month', month(df.start_time)).withColumn('year', year(df.start_time)).withColumn('weekday', dayofweek(df.start_time))
     time_table = df.select(['start_time', 'hour', 'day', 'week', 'month', 'year', 'weekday'])
     
-#     # write time table to parquet files partitioned by year and month
+    # write time table to parquet files partitioned by year and month
     time_table = time_table.write.partitionBy("year", 'month').parquet('{}/time.parquet'.format(output_data))
 
     # read in song data to use for songplays table
